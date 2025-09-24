@@ -4,6 +4,8 @@ from dotenv import load_dotenv
 from oria_communauté.bot1 import bot1
 from nexara_officiel.bot2 import bot2
 
+intents = discord.Intents.default()
+intents.message_content = True
 load_dotenv()
 
 async def main():

@@ -1,8 +1,17 @@
 import asyncio
-from oria_communauté.bot1.py import bot1.py
-from nexara_officiel.bot2.py import bot2.py
+import os
+from dotenv import load_dotenv
+from oria_communauté.bot1 import bot1
+from nexara_officiel.bot2 import bot2
 
-#Lancement des bots
+load_dotenv()
+
 async def main():
-    await asyncio.gather(bot1.start("TOKEN_BOT1"),bot2.start("TOKEN_BOT2"))
+    token1 = os.getenv("TOKEN_BOT1")
+    token2 = os.getenv("TOKEN_BOT2")
+    await asyncio.gather(
+        bot1.start(token1),
+        bot2.start(token2)
+    )
+
 asyncio.run(main())

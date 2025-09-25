@@ -13,17 +13,17 @@ bot2 = commands.Bot(command_prefix="!", intents=get_intents())
 def is_admin(user: discord.User | discord.Member) -> bool:
     return user.id in ADMIN_IDS
 
-@bot2.event
+@bot1.event
 async def on_ready():
-    await bot2.tree.sync()
-    print(f"✅ Bot2 connecté en tant que {bot2.user}")
+    await bot1.tree.sync()
+    print(f"✅ Bot1 connecté en tant que {bot1.user}")
 
     # Envoi du message de démarrage dans le salon Discord
     channel_id = 1408354449172463686  # Remplace par l'ID de ton salon
     try:
-        channel = bot2.get_channel(channel_id)
+        channel = bot1.get_channel(channel_id)
         if channel:
-            await channel.send(f"🚀 Bot2 est démarré et prêt ! (User: {bot2.user})")
+            await channel.send(f"🚀 Bot1 est démarré et prêt ! (User: {bot1.user})")
         else:
             print(f"❌ Salon {channel_id} introuvable (peut-être pas dans les intents/guilds ?)")
     except Exception as e:

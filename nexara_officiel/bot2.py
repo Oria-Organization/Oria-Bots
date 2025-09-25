@@ -4,6 +4,7 @@ from discord.ext import commands
 
 intents = discord.Intents.default()
 intents.message_content = True
+intents.members = True
 bot2 = discord.Client(intents=intents)
 
 async def start(token):

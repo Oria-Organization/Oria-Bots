@@ -8,7 +8,7 @@ def get_intents():
     intents.guilds = True
     return intents
 
-bot2 = commands.Bot(command_prefix="!", intents=get_intents())
+bot1 = commands.Bot(command_prefix="!", intents=get_intents())
 
 def is_admin(user: discord.User | discord.Member) -> bool:
     return user.id in ADMIN_IDS

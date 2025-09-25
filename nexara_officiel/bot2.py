@@ -2,30 +2,28 @@ import discord
 from discord import app_commands
 from discord.ext import commands
 
-async def start(token):
-    await bot2.start(token)
-
 ADMIN_IDS = {1209546018639843331, 1366117716863357060, 1390717909386530876}
 
-# --- Intents ---
-intents = discord.Intents.default()
-intents.message_content = True
-intents.members = True
-intents.dm_messages = True
-intents.guilds = True
+def get_intents():
+    intents = discord.Intents.default()
+    intents.message_content = True
+    intents.members = True
+    intents.dm_messages = True
+    intents.guilds = True
+    return intents
 
 # --- Bot setup ---
-bot = commands.Bot(command_prefix="!", intents=intents)
+bot2 = commands.Bot(command_prefix="!", intents=get_intents())
 
-# --- Vérifie si l'utilisateur est admin ---
-def is_admin(user: discord.User | discord.Member):
+def is_admin(user: discord.User | discord.Member) -> bool:
     return user.id in ADMIN_IDS
 
-@bot.event
+@bot2.event
 async def on_ready():
-    await bot.tree.sync()
-    print(f"✅ Bot1 connecté en tant que {bot.user}")
+    await bot2.tree.sync()
+    print(f"✅ Bot2 connecté en tant que {bot2.user}")
 
+# -- Les modals et commandes restent inchangées, mais tu dois remplacer "bot" par "bot2" partout --
 # --- Modal pour envoyer un message ---
 class EnvoyerModal(discord.ui.Modal, title="Envoyer un message"):
     contenu = discord.ui.TextInput(label="Contenu du message", style=discord.TextStyle.paragraph)
@@ -38,7 +36,7 @@ class EnvoyerModal(discord.ui.Modal, title="Envoyer un message"):
         await self.channel.send(self.contenu.value)
         await interaction.response.send_message("✅ Message envoyé avec succès.", ephemeral=True)
 
-@bot.tree.command(name="envoyer", description="Envoyer un message dans un salon ou un fil")
+@bot2.tree.command(name="envoyer", description="Envoyer un message dans un salon ou un fil")
 @app_commands.describe(channel="Salon ou fil de destination")
 async def envoyer(interaction: discord.Interaction, channel: discord.abc.GuildChannel):
     if not is_admin(interaction.user):
@@ -59,7 +57,7 @@ class EmbedModal(discord.ui.Modal, title="Créer un embed"):
         await self.channel.send(embed=emb)
         await interaction.response.send_message("✅ Embed envoyé avec succès.", ephemeral=True)
 
-@bot.tree.command(name="embed", description="Créer un embed dans un salon ou un fil")
+@bot2.tree.command(name="embed", description="Créer un embed dans un salon ou un fil")
 @app_commands.describe(channel="Salon ou fil de destination")
 async def embed(interaction: discord.Interaction, channel: discord.abc.GuildChannel):
     if not is_admin(interaction.user):
@@ -67,13 +65,13 @@ async def embed(interaction: discord.Interaction, channel: discord.abc.GuildChan
     await interaction.response.send_modal(EmbedModal(channel))
 
 # --- Commande /mp ---
-@bot.tree.command(name="mp", description="Envoyer un message privé à un utilisateur")
+@bot2.tree.command(name="mp", description="Envoyer un message privé à un utilisateur")
 @app_commands.describe(user_id="ID de l'utilisateur")
 async def mp(interaction: discord.Interaction, user_id: str):
     if not is_admin(interaction.user):
         return await interaction.response.send_message("⛔ Accès refusé.", ephemeral=True)
     try:
-        target_user = await bot.fetch_user(int(user_id))
+        target_user = await bot2.fetch_user(int(user_id))
 
         class MpModal(discord.ui.Modal, title="Envoyer un MP"):
             contenu = discord.ui.TextInput(label="Contenu du message", style=discord.TextStyle.paragraph)
@@ -96,7 +94,6 @@ class ModifierModal(discord.ui.Modal, title="Modifier un message"):
         super().__init__()
         self.message = message
 
-        # Préremplir avec l’existant
         self.contenu.default = message.content if message.content else ""
         if message.embeds:
             embed = message.embeds[0]
@@ -108,8 +105,6 @@ class ModifierModal(discord.ui.Modal, title="Modifier un message"):
     async def on_submit(self, interaction: discord.Interaction):
         try:
             new_content = self.contenu.value
-
-            # Reconstruire l’embed uniquement si un champ est rempli
             embed = None
             if self.titre_embed.value or self.description_embed.value or self.couleur_embed.value:
                 embed = discord.Embed(
@@ -117,13 +112,12 @@ class ModifierModal(discord.ui.Modal, title="Modifier un message"):
                     description=self.description_embed.value or None,
                     color=discord.Color.from_str(self.couleur_embed.value) if self.couleur_embed.value else discord.Color.default()
                 )
-
             await self.message.edit(content=new_content, embed=embed)
             await interaction.response.send_message("✅ Message modifié avec succès.", ephemeral=True)
         except Exception as e:
             await interaction.response.send_message(f"⛔ Erreur : {e}", ephemeral=True)
 
-@bot.tree.command(name="modifier", description="Modifier un message déjà envoyé par le bot")
+@bot2.tree.command(name="modifier", description="Modifier un message déjà envoyé par le bot")
 @app_commands.describe(message_id="ID du message à modifier")
 async def modifier(interaction: discord.Interaction, message_id: str):
     if not is_admin(interaction.user):
@@ -132,7 +126,7 @@ async def modifier(interaction: discord.Interaction, message_id: str):
         for channel in interaction.guild.text_channels:
             try:
                 msg = await channel.fetch_message(int(message_id))
-                if msg.author.id == bot.user.id:
+                if msg.author.id == bot2.user.id:
                     return await interaction.response.send_modal(ModifierModal(msg))
             except:
                 continue

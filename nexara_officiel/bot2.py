@@ -6,6 +6,7 @@ intents = discord.Intents.default()
 intents.message_content = True
 intents.members = True
 bot2 = discord.Client(intents=intents)
+bot2 = commands.Bot(command_prefix="!", intents=intents)
 
 async def start(token):
     await bot2.start(token)

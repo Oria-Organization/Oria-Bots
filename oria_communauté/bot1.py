@@ -69,36 +69,46 @@ async def info_wiki(interaction: discord.Interaction):
     await interaction.response.send_message("🔗 Wiki du serveur : https://lien-du-wiki.fr", ephemeral=True)
 
 @bot1.tree.command(name="pseudo", description="Change le pseudo d'un membre, d'un rôle ou tout le serveur")
-@app_commands.describe(target="Membre, rôle, ou everyone", nouveau_nom="Nouveau pseudo (utilisez $1 pour le pseudo d'origine)")
-async def pseudo(interaction: discord.Interaction, target: discord.Role | discord.Member | str, nouveau_nom: str):
+@app_commands.describe(
+    membre="Le membre à cibler (optionnel)",
+    role="Le rôle à cibler (optionnel)",
+    everyone="Changer pour tout le serveur ? (optionnel)",
+    nouveau_nom="Nouveau pseudo (utilisez $1 pour le pseudo d'origine)"
+)
+async def pseudo(
+    interaction: discord.Interaction,
+    nouveau_nom: str,
+    membre: discord.Member = None,
+    role: discord.Role = None,
+    everyone: bool = False
+):
     if not is_admin(interaction.user):
         return await interaction.response.send_message("⛔ Accès réservé au staff.", ephemeral=True)
+
     guild = interaction.guild
-    if isinstance(target, discord.Member):
-        base = target.display_name
+    changed = 0
+    if membre:
+        base = membre.display_name
         new_name = nouveau_nom.replace("$1", base)
-        await target.edit(nick=new_name)
-        await interaction.response.send_message(f"✅ Pseudo de {target.mention} changé en {new_name}", ephemeral=True)
-    elif isinstance(target, discord.Role):
-        count = 0
-        for member in target.members:
+        await membre.edit(nick=new_name)
+        changed += 1
+    elif role:
+        for member in role.members:
             base = member.display_name
             new_name = nouveau_nom.replace("$1", base)
             try:
                 await member.edit(nick=new_name)
-                count += 1
+                changed += 1
             except: continue
-        await interaction.response.send_message(f"✅ {count} pseudos changés pour le rôle {target.name}", ephemeral=True)
-    elif isinstance(target, str) and target.lower() == "everyone":
-        count = 0
+    elif everyone:
         for member in guild.members:
             if member.bot: continue
             base = member.display_name
             new_name = nouveau_nom.replace("$1", base)
             try:
                 await member.edit(nick=new_name)
-                count += 1
+                changed += 1
             except: continue
-        await interaction.response.send_message(f"✅ Pseudos changés pour tout le serveur ({count})", ephemeral=True)
     else:
-        await interaction.response.send_message("⛔ Cible invalide.", ephemeral=True)
+        return await interaction.response.send_message("⛔ Précise la cible (membre, rôle ou everyone).", ephemeral=True)
+    await interaction.response.send_message(f"✅ Pseudos changés : {changed}", ephemeral=True)

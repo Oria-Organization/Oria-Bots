@@ -2,7 +2,7 @@ import discord
 from discord import app_commands
 from discord.ext import commands
 
-ADMIN_IDS = {1209546018639843331, 1366117716863357060, 1390717909386530876}
+ADMIN_IDS = {1209546018639843331, 1366117716863357060}
 
 def get_intents():
     intents = discord.Intents.default()

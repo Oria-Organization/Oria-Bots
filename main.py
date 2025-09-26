@@ -3,6 +3,7 @@ import os
 from oria_communauté.bot1 import bot1
 from nexara_officiel.bot2 import bot2
 import discord
+from discord.ext import commands  # <--- AJOUTE CETTE LIGNE
 
 try:
     from dotenv import load_dotenv
@@ -31,8 +32,9 @@ async def main():
     token1 = os.getenv("TOKEN_BOT1")
     token2 = os.getenv("TOKEN_BOT2")
 
-    bot1 = commands.Bot(command_prefix="!", intents=get_intents())
-    bot2 = commands.Bot(command_prefix="!", intents=get_intents())
+    # SUPPRIME ces deux lignes :
+    # bot1 = commands.Bot(command_prefix="!", intents=get_intents())
+    # bot2 = commands.Bot(command_prefix="!", intents=get_intents())
 
     await asyncio.gather(
         run_bot(bot1, token1, "Bot1"),

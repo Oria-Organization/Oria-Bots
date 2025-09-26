@@ -31,8 +31,8 @@ async def main():
     token1 = os.getenv("TOKEN_BOT1")
     token2 = os.getenv("TOKEN_BOT2")
 
-    bot1.intents = get_intents()
-    bot2.intents = get_intents()
+    bot1 = commands.Bot(command_prefix="!", intents=get_intents())
+    bot2 = commands.Bot(command_prefix="!", intents=get_intents())
 
     await asyncio.gather(
         run_bot(bot1, token1, "Bot1"),

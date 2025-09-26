@@ -1,4 +1,5 @@
 import discord
+from discord.ext import commands
 
 def get_intents():
     intents = discord.Intents.default()
